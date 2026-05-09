@@ -1,4 +1,6 @@
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class playerController : MonoBehaviour
 {
@@ -7,18 +9,25 @@ public class playerController : MonoBehaviour
     /// </summary>
     private const float MOVE_SPEED = 5.0f;
 
-
     /// <summary>
     /// 物理演算コンポーネント
     /// </summary>
     [SerializeField] private Rigidbody rigidbody;
 
+    /// <summary>
+    /// 自動生成されたInputクラス
+    /// </summary>
+    [SerializeField] private PlayerInputAction inputActions;
+
+    /// <summary>
+    /// 入力方向
+    /// </summary>
+    private Vector2 moveInput = Vector2.zero;
 
     /// <summary>
     /// 移動方向のベクトル
     /// </summary>
     private Vector3 moveDirection = Vector3.zero;
-
 
     /// <summary>
     /// 外部(アニメーションとかUI)に現在の速度を教えるために保存するVelocity
@@ -26,14 +35,25 @@ public class playerController : MonoBehaviour
     public Vector3 CurrentVelocity { get; private set; }
 
 
+    private void Awake()
+    {
+        inputActions = new PlayerInputAction();
+        inputActions.Player.Fire.performed += OnFire;
+    }
+
+    private void OnEnable()
+    {
+        inputActions.Enable();
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Disable();
+    }
+
     private void Update()
     {
-        float x = Input.GetAxisRaw("Horizontal");
-        float z = Input.GetAxisRaw("Vertical");
-
-        //入力から移動方向のベクトルを生成
-        moveDirection = new Vector3(x, 0, z).normalized ;
-
+        moveInput = inputActions.Player.Move.ReadValue<Vector2>();
     }
 
     private void FixedUpdate()
@@ -53,20 +73,26 @@ public class playerController : MonoBehaviour
         }
 
         //入力がない場合は、入力を止めておく
-        if(moveDirection == Vector3.zero)
+        if(moveInput == Vector2.zero)
         {
             rigidbody.linearVelocity = new Vector3(0,rigidbody.linearVelocity.y,0);
             CurrentVelocity = Vector3.zero;
         }
 
         //実際の移動速度の計算
-        Vector3 targetVelocity = moveDirection * MOVE_SPEED;
+        Vector3 targetVelocity = new Vector3(moveInput.x, rigidbody.linearVelocity.y, moveInput.y);
+        targetVelocity.Normalize();
 
-        rigidbody.linearVelocity = new Vector3(
-            targetVelocity.x,
-            rigidbody.linearVelocity.y,
-            targetVelocity.z);
+        
+        rigidbody.linearVelocity = targetVelocity* MOVE_SPEED;
 
+        //外部(アニメーションとかUI)などに現在の速度を教えるためのプロパティを更新）
         CurrentVelocity = rigidbody.linearVelocity;
+    }
+
+    private void OnFire(InputAction.CallbackContext context)
+    {
+        Debug.Log("Fire");
+
     }
 }
