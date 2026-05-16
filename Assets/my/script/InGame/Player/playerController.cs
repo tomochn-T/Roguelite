@@ -6,7 +6,7 @@ namespace TPSRoguelite.InGame.Player
 {
     public class playerController : MonoBehaviour
     {
-        #region player
+        #region 変数定義
 
         /// <summary>
         /// 移動速度
@@ -14,9 +14,29 @@ namespace TPSRoguelite.InGame.Player
         private const float MOVE_SPEED = 5.0f;
 
         /// <summary>
+        /// 回転速度
+        /// </summary>
+        private const float ROTATE_SPEED = 10f;
+
+        /// <summary>
+        /// レーザーポインターの描画距離
+        /// </summary>
+        private const float LASER_MAX_DISTANCE = 50;
+
+        /// <summary>
         /// 物理演算コンポーネント
         /// </summary>
         [SerializeField] private Rigidbody rigidbody;
+
+        /// <summary>
+        /// 銃口のトランスフォーム
+        /// </summary>
+        [SerializeField] private Transform weponOrigine;
+
+        /// <summary>
+        /// レーザーポインターの描画コンポーネント
+        /// </summary>
+        [SerializeField] private LineRenderer laserlineRenderer;
 
         /// <summary>
         /// 自動生成されたInputクラス
@@ -33,6 +53,12 @@ namespace TPSRoguelite.InGame.Player
         /// </summary>
         private Vector3 moveDirection = Vector3.zero;
 
+
+        /// <summary>
+        /// カメラのトランスフォーム
+        /// </summary>
+        private Transform mainCameraTransform;
+
         /// <summary>
         /// 外部(アニメーションとかUI)に現在の速度を教えるために保存するVelocity
         /// </summary>
@@ -43,6 +69,15 @@ namespace TPSRoguelite.InGame.Player
         {
             inputActions = new PlayerInputAction();
             inputActions.Player.Fire.performed += OnFire;
+
+            if(UnityEngine.Camera.main != null)
+            {
+                mainCameraTransform = UnityEngine.Camera.main.transform;
+            }
+            else
+            {
+                Debug.Log("Main Cameraが見つかりません");
+            }
         }
 
         private void OnEnable()
@@ -58,6 +93,7 @@ namespace TPSRoguelite.InGame.Player
         private void Update()
         {
             moveInput = inputActions.Player.Move.ReadValue<Vector2>();
+            DrawLaserPointer();
         }
 
         private void FixedUpdate()
@@ -83,12 +119,24 @@ namespace TPSRoguelite.InGame.Player
                 CurrentVelocity = Vector3.zero;
             }
 
-            //実際の移動速度の計算
-            Vector3 targetVelocity = new Vector3(moveInput.x, rigidbody.linearVelocity.y, moveInput.y);
-            targetVelocity.Normalize();
+            //カメラの基準の計算に変更
+            Vector3 cameraForward = mainCameraTransform.forward;
+            Vector3 cameraRight = mainCameraTransform.right;
 
 
-            rigidbody.linearVelocity = targetVelocity * MOVE_SPEED;
+            cameraForward.y = 0f;
+            cameraRight.y = 0f;
+            cameraForward.Normalize();
+            cameraRight.Normalize();
+
+            Vector3 moveDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
+
+            //キャラクターを進行方向へ滑らかに振り向かせる
+            Quaternion trageRotation = Quaternion.LookRotation(moveDirection);
+            rigidbody.rotation = Quaternion.Slerp(rigidbody.rotation, trageRotation, ROTATE_SPEED * Time.fixedDeltaTime);
+
+            Vector3 targetVelocity = moveDirection * MOVE_SPEED;
+            rigidbody.linearVelocity = new Vector3(targetVelocity.x, rigidbody.linearVelocity.y, targetVelocity.z);
 
             //外部(アニメーションとかUI)などに現在の速度を教えるためのプロパティを更新）
             CurrentVelocity = rigidbody.linearVelocity;
@@ -97,6 +145,30 @@ namespace TPSRoguelite.InGame.Player
         private void OnFire(InputAction.CallbackContext context)
         {
             Debug.Log("Fire");
+        }
+
+        /// <summary>
+        /// レーザーポインターの描画
+        /// </summary>
+        private void DrawLaserPointer()
+        {
+            if(laserlineRenderer == null  || weponOrigine == null || mainCameraTransform ==null)
+            {
+                return;
+            }
+
+            laserlineRenderer.SetPosition(0,weponOrigine.position);
+
+            Ray ray = new Ray(mainCameraTransform.position, mainCameraTransform.forward);
+            if (Physics.Raycast(ray, out RaycastHit hitInfo, LASER_MAX_DISTANCE))
+            {
+                laserlineRenderer.SetPosition(1, hitInfo.point);
+            }
+            else
+            {
+                laserlineRenderer.SetPosition(1, ray.GetPoint(LASER_MAX_DISTANCE));
+            }
+
 
         }
     }

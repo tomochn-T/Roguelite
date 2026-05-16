@@ -5,7 +5,7 @@ namespace TPSRoguelite.InGame.Camera
 {
     public class CameraController : MonoBehaviour
     {
-        #region Camera周り
+        #region 変数定義
         /// <summary>
         /// マウス感度
         /// </summary>
@@ -24,12 +24,12 @@ namespace TPSRoguelite.InGame.Camera
         /// <summary>
         /// 縦の最小感度
         /// </summary>
-        private float MIN_PITCH = 10f;
+        private float MIN_PITCH = 10;//10
 
         /// <summary>
         /// 縦の最大感度
         /// </summary>
-        private float MAX_PITCH = 60f;
+        private float MAX_PITCH = 60;//60
 
         /// <summary>
         /// 追尾するプレイヤー
