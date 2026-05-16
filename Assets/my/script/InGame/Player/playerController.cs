@@ -6,6 +6,8 @@ namespace TPSRoguelite.InGame.Player
 {
     public class playerController : MonoBehaviour
     {
+        #region player
+
         /// <summary>
         /// 移動速度
         /// </summary>
@@ -35,7 +37,7 @@ namespace TPSRoguelite.InGame.Player
         /// 外部(アニメーションとかUI)に現在の速度を教えるために保存するVelocity
         /// </summary>
         public Vector3 CurrentVelocity { get; private set; }
-
+        #endregion
 
         private void Awake()
         {
