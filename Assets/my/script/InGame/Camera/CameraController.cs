@@ -5,7 +5,6 @@ namespace TPSRoguelite.InGame.Camera
 {
     public class CameraController : MonoBehaviour
     {
-        #region 変数定義
         /// <summary>
         /// マウス感度
         /// </summary>
@@ -55,7 +54,8 @@ namespace TPSRoguelite.InGame.Camera
         /// 縦の回転角度(X軸回転)
         /// </summary>
         private float currentPitch = 20f;
-        #endregion
+
+
 
         private void Awake()
         {
