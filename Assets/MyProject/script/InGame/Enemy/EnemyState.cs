@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using Core.Interface;
 
 namespace TPSRoguelite.InGame.Enemy
@@ -6,18 +7,26 @@ namespace TPSRoguelite.InGame.Enemy
     public class EnemyState : MonoBehaviour, IDamageable
     {
         /// <summary>
-        /// 体力の最大値
+        /// 敵のデータ
         /// </summary>
-        private const int MAX_HP = 100;
+        [field: SerializeField] public EnemyData EnemyDataAsset { get; private set; }
 
         /// <summary>
         /// 現在の体力
         /// </summary>
         public int CurrentHP { get; private set; }
 
-        private void Awake()
+        public event UnityAction<EnemyState> OnReturnToPoolAction;
+
+        private void OnEnable()
         {
-            CurrentHP = MAX_HP;
+            if (EnemyDataAsset == null)
+            {
+                Debug.Log("EnemyDataAssetがセットされていません");
+                return;
+            }
+
+            CurrentHP = EnemyDataAsset.MaxHP;
         }
 
         public void TakeDamage(int damageAmount)
@@ -29,19 +38,19 @@ namespace TPSRoguelite.InGame.Enemy
             }
 
             CurrentHP -= damageAmount;
-            Debug.Log($"敵に{damageAmount}のダメージ!残りHP:{CurrentHP}");
+            Debug.Log($"{EnemyDataAsset.EnemyName}に{damageAmount}のダメージ!残りHP:{CurrentHP}");
 
             if (CurrentHP <= 0)
             {
                 Die();
             }
-
         }
 
         private void Die()
         {
-            Debug.Log("敵を倒しました");
-            Destroy(gameObject);
+            Debug.Log($"{EnemyDataAsset.EnemyName}を倒しました");
+            gameObject.SetActive(false);
+            OnReturnToPoolAction?.Invoke(this);
         }
     }
 }

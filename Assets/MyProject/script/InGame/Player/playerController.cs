@@ -167,10 +167,14 @@ namespace TPSRoguelite.InGame.Player
 
             //キャラクターを進行方向へ滑らかに振り向かせる
             Quaternion trageRotation = Quaternion.LookRotation(moveDirection);
-            rigidbody.rotation = Quaternion.Slerp(rigidbody.rotation, trageRotation, ROTATE_SPEED * Time.fixedDeltaTime);
+
+            rigidbody.rotation = 
+                Quaternion.Slerp(rigidbody.rotation, trageRotation, ROTATE_SPEED * Time.fixedDeltaTime);
 
             Vector3 targetVelocity = moveDirection * MOVE_SPEED;
-            rigidbody.linearVelocity = new Vector3(targetVelocity.x, rigidbody.linearVelocity.y, targetVelocity.z);
+
+            rigidbody.linearVelocity = 
+                new Vector3(targetVelocity.x, rigidbody.linearVelocity.y, targetVelocity.z);
 
             //外部(アニメーションとかUI)などに現在の速度を教えるためのプロパティを更新）
             CurrentVelocity = rigidbody.linearVelocity;
@@ -211,7 +215,8 @@ namespace TPSRoguelite.InGame.Player
             isReloading = true;
             Debug.Log("リロード中");
 
-            await UniTask.Delay(TimeSpan.FromSeconds(RELOAD_TIME), cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay
+                (TimeSpan.FromSeconds(RELOAD_TIME), cancellationToken: this.GetCancellationTokenOnDestroy());
 
             CurrentAmmo = MAX_AMMO;
             isReloading = false;
