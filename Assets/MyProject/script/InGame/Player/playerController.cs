@@ -6,6 +6,8 @@ using UnityEditor.Rendering;
 using System;
 using System.Threading;
 using TPSRoguelite.InGame.Date;
+using UnityEngine.InputSystem.XR.Haptics;
+using Unity.VisualScripting;
 
 namespace TPSRoguelite.InGame.Player
 {
@@ -80,6 +82,11 @@ namespace TPSRoguelite.InGame.Player
         /// 射撃可能か
         /// </summary>
         private bool canShoot = true;
+        
+        /// <summary>
+        /// 射撃のキャンセルトークン
+        /// </summary>
+        private CancellationTokenSource fireCts;
 
         /// <summary>
         /// 外部(アニメーションとかUI)に現在の速度を教えるために保存するVelocity
@@ -103,7 +110,8 @@ namespace TPSRoguelite.InGame.Player
             }
 
             inputActions = new PlayerInputAction();
-            inputActions.Player.Fire.performed += OnFire;
+            inputActions.Player.Fire.performed += OnFire;//押し続けると呼ばれる
+            inputActions.Player.Fire.canceled += OnFire;
             inputActions.Player.Reload.performed += OnReload;
 
             if(UnityEngine.Camera.main != null)
@@ -192,20 +200,35 @@ namespace TPSRoguelite.InGame.Player
                     return;
                 }
 
-                switch (currentWeapon.WeaponFiretype)
+                fireCts = new CancellationTokenSource();
+                CancellationTokenSource linkedCts =
+                    CancellationTokenSource.CreateLinkedTokenSource(fireCts.Token, this.GetCancellationTokenOnDestroy());
+
+                switch (currentWeapon.WeaponFiretype)   
                 {
                     case Enum.FireType.SemiAuto:
                         ShootSemiAutoAsnc(this.GetCancellationTokenOnDestroy()).Forget();
                         break;
+
                     case Enum.FireType.Burst:
+                        ShootBurstAsync(this.GetCancellationTokenOnDestroy()).Forget();
                         break;
+
                     case Enum.FireType.FillAuto:
+                        ShootFullAutoAsync(linkedCts.Token).Forget();
                         break;
 
                     default:
                         Debug.Log($"割り当てていない射撃タイプがあります。{currentWeapon.WeaponFiretype}");
                         break;
                 }
+            }
+
+            if (context.canceled)
+            {
+                fireCts?.Cancel();
+                fireCts?.Dispose();
+                fireCts = null;
             }
         }
 
@@ -227,10 +250,61 @@ namespace TPSRoguelite.InGame.Player
             CurrentAmmo--;
             Debug.Log($"セミオートで撃った！弾数:{CurrentAmmo}");
             Shoot();
-
             await UniTask.Delay(System.TimeSpan.FromSeconds(currentWeapon.FireRate), cancellationToken: token);
 
             canShoot=true;
+        }
+
+        private async UniTaskVoid ShootBurstAsync(CancellationToken token)
+        {
+            canShoot = false;
+
+            for (int i = 0; i < 3; i++)
+            {
+                if(CurrentAmmo <= 0)
+                {
+                    canShoot = true;
+                    return;
+                }
+
+                CurrentAmmo --;
+                Shoot();
+                Debug.Log($"バースト！残弾数:{CurrentAmmo}");
+
+                await UniTask.Delay(TimeSpan.FromSeconds(currentWeapon.FireInteval), cancellationToken:token);
+            }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(currentWeapon.FireInteval), cancellationToken: token);
+            canShoot = true;
+        }
+
+        private async UniTaskVoid ShootFullAutoAsync(CancellationToken token)
+        {
+            canShoot = false;
+
+            while (!token.IsCancellationRequested)
+            {
+                if (CurrentAmmo <= 0)
+                {
+                    ReloadAsync().Forget();
+                    break;
+
+                }
+                CurrentAmmo--;
+                Debug.Log($"フルオート！残弾数:{CurrentAmmo}");
+                Shoot();
+
+                bool isCanceled =
+                    await UniTask.Delay(TimeSpan.FromSeconds(currentWeapon.FireInteval),
+                        cancellationToken: token).SuppressCancellationThrow();
+                if (isCanceled)
+                {
+                    break;
+                }
+            }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(currentWeapon.FireInteval), cancellationToken:this.GetCancellationTokenOnDestroy());
+            canShoot = true;
         }
 
         /// <summary>
