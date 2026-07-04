@@ -12,7 +12,7 @@ public class EnemyData : ScriptableObject
     /// <summary>
     /// ‘Ì—Í
     /// </summary>
-    [field:SerializeField] public int MaxHP { get; private set; }
+    [field:SerializeField] public double MaxHP { get; private set; }//int
 
     /// <summary>
     /// ˆÚ“®‘¬“x

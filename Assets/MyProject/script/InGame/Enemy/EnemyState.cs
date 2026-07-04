@@ -14,7 +14,7 @@ namespace TPSRoguelite.InGame.Enemy
         /// <summary>
         /// 現在の体力
         /// </summary>
-        public int CurrentHP { get; private set; }
+        public double CurrentHP { get; private set; }//int
 
         public event UnityAction<EnemyState> OnReturnToPoolAction;
 
@@ -29,7 +29,7 @@ namespace TPSRoguelite.InGame.Enemy
             CurrentHP = EnemyDataAsset.MaxHP;
         }
 
-        public void TakeDamage(int damageAmount)
+        public void TakeDamage(double damageAmount)//int
         {
             //マイナスダメージ(回復)を防ぐ
             if (damageAmount <= 0)
