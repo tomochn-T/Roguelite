@@ -52,6 +52,11 @@ namespace TPSRoguelite.InGame.Player
         [SerializeField] private ulong weaponId = 1;
 
         /// <summary>
+        /// マズルフラッシュのエフェクト
+        /// </summary>
+        [SerializeField] private ParticleSystem muzzleFlah;
+
+        /// <summary>
         /// 武器のデーター
         /// </summary>
         private WeaponDataRecord currentWeapon;
@@ -323,6 +328,12 @@ namespace TPSRoguelite.InGame.Player
         /// </summary>
         private void Shoot()
         {
+            if(muzzleFlah != null)
+            {
+                muzzleFlah.Play();
+            }
+
+
             Ray ray = new Ray(mainCameraTransform.position, mainCameraTransform.forward);
 
             //光線に何かが当たったか判定

@@ -12,3 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42982ca9af2740b4a993d0f4eb91935e, type: 3}
   m_Name: Handgun
   m_EditorClassIdentifier: Assembly-CSharp::TPSRoguelite.InGame.Date.WeaporData
+  <Records>k__BackingField:
+  - <Id>k__BackingField: 0
+    <WeaporName>k__BackingField: 
+    <WeaponFiretype>k__BackingField: 0
+    <AttackPower>k__BackingField: 0
+    <FireInteval>k__BackingField: 0
+    <FireRate>k__BackingField: 0
+    <MaxAmmo>k__BackingField: 0
+    <ReloadTime>k__BackingField: 0
