@@ -9,13 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fcb16acada80571418c4201f69de1a26, type: 3}
+  m_Script: {fileID: 11500000, guid: 42982ca9af2740b4a993d0f4eb91935e, type: 3}
   m_Name: Handgun
   m_EditorClassIdentifier: Assembly-CSharp::TPSRoguelite.InGame.Date.WeaporData
-  <weaporName>k__BackingField: "\u30CF\u30F3\u30C9\u30AC\u30F3"
-  <WeaponFiretype>k__BackingField: 0
-  <AttackPower>k__BackingField: 100000000000
-  <FireInteval>k__BackingField: 0
-  <FireRate>k__BackingField: 0
-  <MaxAmmo>k__BackingField: 10
-  <ReloadTime>k__BackingField: 1

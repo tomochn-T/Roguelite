@@ -3,7 +3,8 @@ using UnityEngine.AI;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using TPSRoguelite.InGame.Enemy;
-using Unity.VisualScripting;
+using Core.MasterData;
+
 
 namespace TPSRoguelite.InGame.Spawner
 {
@@ -41,16 +42,14 @@ namespace TPSRoguelite.InGame.Spawner
         private Queue<EnemyState> enemyPool = new Queue<EnemyState>();
 
 
-        private void Awake()
+        
+
+        public void Setup()
         {
-            if(enemyPrefab == null)
+            if (enemyPrefab == null)
             {
                 return;
             }
-            //Queueは初期化しないとnullになるからAwake、stateまたは、Queue<○○○> ○○○ = new Queue<○○○>();で初期化して使用する
-
-            //enemyPool = new Queue<EnemyState>();
-
 
             //ゲーム開始時に、あらかじめ用意した数だけ生成しておく
             for (int i = 0; i < POOL_SIZE; i++)
@@ -59,22 +58,20 @@ namespace TPSRoguelite.InGame.Spawner
                 EnemyState enemy = enemyObj.GetComponent<EnemyState>();
                 if (enemy != null)
                 {
+                    ulong randomId = (ulong)UnityEngine.Random.Range(1, MasterDataAccessor.Instance.Count<EnemyDataRecord>());
+                    enemy.Initialize(randomId);
                     enemy.gameObject.SetActive(false);
                     enemyPool.Enqueue(enemy);
                 }
             }
-        }
-
-        private void Start()
-        {
-            spawnLoopAsync().Forget();
+            SpawnLoopAsync().Forget();
         }
 
         /// <summary>
         /// UniTaskを用いた非同期の生成ループ
         /// </summary>
         /// <returns></returns>
-        private async UniTaskVoid spawnLoopAsync()
+        private async UniTaskVoid SpawnLoopAsync()
         {
             //発生装置が壊れた時にタイマーを安全に止めるためのトークン取
             var token = this.GetCancellationTokenOnDestroy();
@@ -143,7 +140,7 @@ namespace TPSRoguelite.InGame.Spawner
             enemy.transform.position = safePosition;
             enemy.transform.rotation = spawnPoint.rotation;
 
-            enemy.gameObject.SetActive(true);
+            enemy.Setup();
         }
 
         /// <summary>

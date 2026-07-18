@@ -3985,6 +3985,65 @@ Transform:
   - {fileID: 1147936937}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2088180909
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2088180912}
+  - component: {fileID: 2088180911}
+  - component: {fileID: 2088180910}
+  m_Layer: 0
+  m_Name: Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2088180910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088180909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a55328e6f0b2f284e82f9e6cf71d3f2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Core.MasterData.MasterDataAccessor
+--- !u!114 &2088180911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088180909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b63e50280491d74c96d9828ab3e3923, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TPSRoguelite.InGame.Manager.GameManager
+  player: {fileID: 303803092993090425}
+  enemySpawner: {fileID: 1040495269}
+--- !u!4 &2088180912
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088180909}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.11021, y: 0.85, z: 22.57526}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2111580864
 GameObject:
   m_ObjectHideFlags: 0
@@ -4165,11 +4224,39 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8566553793243937740, guid: fde6414825fed25499ba90cf1ae66a32, type: 3}
+      propertyPath: weaponId
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8566553793243937740, guid: fde6414825fed25499ba90cf1ae66a32, type: 3}
+      propertyPath: Rigidbody
+      value: 
+      objectReference: {fileID: 303803092993090426}
+    - target: {fileID: 8566553793243937740, guid: fde6414825fed25499ba90cf1ae66a32, type: 3}
+      propertyPath: currentWeapon
+      value: 
+      objectReference: {fileID: 11400000, guid: c224c6aa01126d34abc375d32b2fef3b, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fde6414825fed25499ba90cf1ae66a32, type: 3}
+--- !u!114 &303803092993090425 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8566553793243937740, guid: fde6414825fed25499ba90cf1ae66a32, type: 3}
+  m_PrefabInstance: {fileID: 303803092993090424}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0df31bd017431474d80746bda85b737d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::playerController
+--- !u!54 &303803092993090426 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 3601391248399749102, guid: fde6414825fed25499ba90cf1ae66a32, type: 3}
+  m_PrefabInstance: {fileID: 303803092993090424}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -4181,3 +4268,4 @@ SceneRoots:
   - {fileID: 303803092993090424}
   - {fileID: 1040495270}
   - {fileID: 1603025551}
+  - {fileID: 2088180912}

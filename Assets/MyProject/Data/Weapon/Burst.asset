@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Burst
   m_EditorClassIdentifier: Assembly-CSharp::TPSRoguelite.InGame.Date.WeaporData
   <weaporName>k__BackingField: 
-  <WeaponFiretype>k__BackingField: 0
-  <AttackPower>k__BackingField: 0
+  <WeaponFiretype>k__BackingField: 1
+  <AttackPower>k__BackingField: 22222222222
   <FireInteval>k__BackingField: 0
   <FireRate>k__BackingField: 0
-  <MaxAmmo>k__BackingField: 0
+  <MaxAmmo>k__BackingField: 30
   <ReloadTime>k__BackingField: 0

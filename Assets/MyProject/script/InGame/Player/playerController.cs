@@ -2,12 +2,10 @@ using Core.Interface;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
-using UnityEditor.Rendering;
 using System;
 using System.Threading;
-using TPSRoguelite.InGame.Date;
-using UnityEngine.InputSystem.XR.Haptics;
-using Unity.VisualScripting;
+using Core.MasterData;
+using TPSRoguelite.InGame.Enum;
 
 namespace TPSRoguelite.InGame.Player
 {
@@ -36,7 +34,7 @@ namespace TPSRoguelite.InGame.Player
         /// <summary>
         /// 物理演算コンポーネント
         /// </summary>
-        [SerializeField] private Rigidbody rigidbody;
+        [SerializeField] private Rigidbody Rigidbody;
 
         /// <summary>
         /// 銃口のトランスフォーム
@@ -49,9 +47,14 @@ namespace TPSRoguelite.InGame.Player
         [SerializeField] private LineRenderer laserlineRenderer;
 
         /// <summary>
+        /// 武器のID(デフォルトは1)
+        /// </summary>
+        [SerializeField] private ulong weaponId = 1;
+
+        /// <summary>
         /// 武器のデーター
         /// </summary>
-        [SerializeField] private WeaporData currentWeapon;
+        private WeaponDataRecord currentWeapon;
 
         /// <summary>
         /// 自動生成されたInputクラス
@@ -100,7 +103,15 @@ namespace TPSRoguelite.InGame.Player
 
         private void Awake()
         {
-            if(currentWeapon != null)
+            gameObject.SetActive(false);
+        }
+
+        public void Setup()
+        {
+
+            currentWeapon = MasterDataAccessor.Instance.GetById<WeaponDataRecord>(weaponId);
+
+            if (currentWeapon != null)
             {
                 CurrentAmmo = currentWeapon.MaxAmmo;
             }
@@ -114,7 +125,7 @@ namespace TPSRoguelite.InGame.Player
             inputActions.Player.Fire.canceled += OnFire;
             inputActions.Player.Reload.performed += OnReload;
 
-            if(UnityEngine.Camera.main != null)
+            if (UnityEngine.Camera.main != null)
             {
                 mainCameraTransform = UnityEngine.Camera.main.transform;
             }
@@ -122,16 +133,17 @@ namespace TPSRoguelite.InGame.Player
             {
                 Debug.Log("Main Cameraが見つかりません");
             }
+            gameObject.SetActive(true);
         }
 
         private void OnEnable()
         {
-            inputActions.Enable();
+            inputActions?.Enable();
         }
 
         private void OnDisable()
         {
-            inputActions.Disable();
+            inputActions?.Disable();
         }
 
         private void Update()
@@ -142,53 +154,52 @@ namespace TPSRoguelite.InGame.Player
 
         private void FixedUpdate()
         {
-            move();
+            Move();
         }
 
         /// <summary>
         /// 移動処理
         /// </summary>
-        private void move()
+        private void Move()
         {
-            if (rigidbody == null)
+            if(Rigidbody == null || mainCameraTransform == null)
             {
-                Debug.Log("リジットボディがアタッチされていません。");
+                Debug.Log("リジットボディまたはmainCameraTransformがNULLです。");
                 return;
+            }
+
+            Vector3 cameraForward = mainCameraTransform.forward;
+            cameraForward.y = 0f;
+            cameraForward.Normalize();
+
+            if (cameraForward != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(cameraForward);
+                Rigidbody.rotation = Quaternion.Slerp(Rigidbody.rotation, targetRotation, ROTATE_SPEED * Time.deltaTime);
             }
 
             //入力がない場合は、入力を止めておく
             if (moveInput == Vector2.zero)
             {
-                rigidbody.linearVelocity = new Vector3(0, rigidbody.linearVelocity.y, 0);
+                Rigidbody.linearVelocity = new Vector3(0, Rigidbody.linearVelocity.y, 0);
                 CurrentVelocity = Vector3.zero;
                 return;
             }
 
             //カメラの基準の計算に変更
-            Vector3 cameraForward = mainCameraTransform.forward;
             Vector3 cameraRight = mainCameraTransform.right;
-
-
-            cameraForward.y = 0f;
             cameraRight.y = 0f;
-            cameraForward.Normalize();
             cameraRight.Normalize();
 
             Vector3 moveDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
 
-            //キャラクターを進行方向へ滑らかに振り向かせる
-            Quaternion trageRotation = Quaternion.LookRotation(moveDirection);
-
-            rigidbody.rotation = 
-                Quaternion.Slerp(rigidbody.rotation, trageRotation, ROTATE_SPEED * Time.fixedDeltaTime);
-
             Vector3 targetVelocity = moveDirection * MOVE_SPEED;
 
-            rigidbody.linearVelocity = 
-                new Vector3(targetVelocity.x, rigidbody.linearVelocity.y, targetVelocity.z);
+            Rigidbody.linearVelocity = 
+                new Vector3(targetVelocity.x, Rigidbody.linearVelocity.y, targetVelocity.z);
 
             //外部(アニメーションとかUI)などに現在の速度を教えるためのプロパティを更新）
-            CurrentVelocity = rigidbody.linearVelocity;
+            CurrentVelocity = Rigidbody.linearVelocity;
         }
 
         private void OnFire(InputAction.CallbackContext context)
@@ -204,7 +215,7 @@ namespace TPSRoguelite.InGame.Player
                 CancellationTokenSource linkedCts =
                     CancellationTokenSource.CreateLinkedTokenSource(fireCts.Token, this.GetCancellationTokenOnDestroy());
 
-                switch (currentWeapon.WeaponFiretype)   
+                switch ((FireType)currentWeapon.WeaponFiretype)   
                 {
                     case Enum.FireType.SemiAuto:
                         ShootSemiAutoAsnc(this.GetCancellationTokenOnDestroy()).Forget();

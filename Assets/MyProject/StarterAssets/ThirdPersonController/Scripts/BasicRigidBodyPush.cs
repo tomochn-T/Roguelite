@@ -15,7 +15,7 @@ public class BasicRigidBodyPush : MonoBehaviour
 	{
 		// https://docs.unity3d.com/ScriptReference/CharacterController.OnControllerColliderHit.html
 
-		// make sure we hit a non kinematic rigidbody
+		// make sure we hit a non kinematic Rigidbody
 		Rigidbody body = hit.collider.attachedRigidbody;
 		if (body == null || body.isKinematic) return;
 
