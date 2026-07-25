@@ -131,6 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TPSRoguelite.InGame.Enemy.EnemyState
   modeelRenderers:
   - {fileID: 4423277619847353999}
+  experienceOrbPrefab: {fileID: 6656221829310220079, guid: 85cc255ce5cdb2e418a638fb8ff7a953, type: 3}
 --- !u!195 &8297653532261669292
 NavMeshAgent:
   m_ObjectHideFlags: 0

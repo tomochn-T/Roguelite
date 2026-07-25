@@ -52,4 +52,4 @@ MonoBehaviour:
     <FireInteval>k__BackingField: 0
     <FireRate>k__BackingField: 0.5
     <MaxAmmo>k__BackingField: 1e+74
-    <ReloadTime>k__BackingField: 4
+    <ReloadTime>k__BackingField: 1
