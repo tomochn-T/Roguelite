@@ -37,7 +37,7 @@ namespace Core.MasterData
         /// <summary>
         /// Å‘å’e”
         /// </summary>
-        [field: SerializeField] public int MaxAmmo { get; private set; }
+        [field: SerializeField] public double MaxAmmo { get; private set; }//int
 
         /// <summary>
         /// ƒŠƒ[ƒhŠÔ
