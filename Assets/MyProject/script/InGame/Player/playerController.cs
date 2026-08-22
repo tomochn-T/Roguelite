@@ -35,6 +35,11 @@ namespace TPSRoguelite.InGame.Player
         private const float ATTACK_RANGE = 50f;
 
         /// <summary>
+        /// レベルアップエフェクトの描画時間
+        /// </summary>
+        private const float LEVEL_UP_EFFECT_DURATION = 2f;
+
+        /// <summary>
         /// 物理演算コンポーネント
         /// </summary>
         [SerializeField] private Rigidbody Rigidbody;
@@ -515,6 +520,12 @@ namespace TPSRoguelite.InGame.Player
         public void AddExp(int amount)
         {
             CurrentExp += amount;
+
+            if(CurrentExp >= RequiredExp)
+            {
+                LevelUp();
+            }
+
             UpdateExpUI();
         }
 
@@ -525,5 +536,35 @@ namespace TPSRoguelite.InGame.Player
                 expBar.value = (float)CurrentExp / (RequiredExp);
             }
         } 
+
+        private void LevelUp()
+        {
+            CurrentLevel++;
+
+            CurrentExp -= RequiredExp;
+
+            if(levelUpEffect != null)
+            {
+                levelUpEffect.Play();
+            }
+
+            ShowLevelUpTextAsync().Forget();
+        }
+
+        private async UniTaskVoid ShowLevelUpTextAsync()
+        {
+            if(levelUpText == null)
+            {
+                return;
+            }
+
+            levelUpText.enabled = true;
+            levelUpText.SetText($"Level Up!\n<size=50%>Lv.{CurrentLevel}</size>");
+
+            await UniTask.Delay(TimeSpan.FromSeconds(LEVEL_UP_EFFECT_DURATION),
+                cancellationToken: this.GetCancellationTokenOnDestroy());
+
+            levelUpText.enabled = false;
+        }
     }
 }
