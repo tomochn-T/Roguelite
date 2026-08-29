@@ -8,6 +8,6 @@ namespace Core.Interface
         /// ƒ_ƒ[ƒW‚ğ—^‚¦‚é
         /// </summary>
         /// <param name="damegeAmount"></param>
-        public void TakeDamage(double damegeAmount);//int
+        public void TakeDamage(int damegeAmount);//int
     }
 }

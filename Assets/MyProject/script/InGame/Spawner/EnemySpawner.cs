@@ -79,7 +79,7 @@ namespace TPSRoguelite.InGame.Spawner
             //ñ≥å¿ÉãÅ[Év
             while (true)
             {
-                await UniTask.Delay(System.TimeSpan.FromSeconds(SPAWN_INTERVAL));
+                await UniTask.Delay(System.TimeSpan.FromSeconds(SPAWN_INTERVAL), cancellationToken : token);
                 SpawnEnemyFromPool();
             }
         }

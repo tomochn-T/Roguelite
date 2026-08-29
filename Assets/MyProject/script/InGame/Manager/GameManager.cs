@@ -3,15 +3,28 @@ using TPSRoguelite.InGame.Player;
 using TPSRoguelite.InGame.Spawner;
 using UnityEngine;
 using Core.MasterData;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 namespace TPSRoguelite.InGame.Manager
 {
     public class GameManager : MonoBehaviour
     {
+        private const string RESULT_SCENE_NAME = "ResultScene";
+
         public static GameManager Instance { get; private set; }
 
         [SerializeField] private playerController player = null;
         [SerializeField] private EnemySpawner enemySpawner = null;
+        [SerializeField] private TextMeshProUGUI timerText = null;
+        [SerializeField] private float gameClearTime = 180f;
+
+        private float currentTime = 0f;
+        private bool isGameActive = false;
+
+        public bool isGameClear {  get; private set; }
+        public float SurviedTime {  get; private set; }
+        public int FinalLevel { get; private set; }
 
         private void Awake()
         {
@@ -46,7 +59,65 @@ namespace TPSRoguelite.InGame.Manager
             {
                 enemySpawner.Setup();
             }
+
+            isGameClear = false;
+            currentTime = gameClearTime;
+            isGameActive = true;
         }
 
+        private void Update()
+        {
+            if (!isGameActive)
+            {
+                return;
+            }
+
+            if(Time.timeScale == 0f)
+            {
+                return;
+            }
+
+            currentTime -= Time.deltaTime;
+            SurviedTime = gameClearTime - currentTime;
+
+            if(timerText != null)
+            {
+                int minutes = Mathf.FloorToInt(currentTime / 60f);
+                int seconds = Mathf.FloorToInt(currentTime - minutes * 60f);
+                timerText.SetText($"{minutes:00}:{seconds:00}");
+            }
+
+            if(currentTime <= 0)
+            {
+                GameClear();
+            }
+        }
+
+        private void GameClear()
+        {
+            isGameActive = false;
+            isGameClear = true;
+            FinalLevel = player != null ? player.CurrentLevel : 1;
+            Debug.Log("ゲームクリア！");
+            GoToResultScene();
+        }
+
+        public void GameOver()
+        {
+            isGameActive = false;
+            isGameClear = false;
+            FinalLevel = player != null ? player.CurrentLevel : 1;
+            Debug.Log("ゲームオーバー...");
+            GoToResultScene();
+        }
+
+        private void GoToResultScene()
+        {
+            Time.timeScale = 1f;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            SceneManager.LoadScene(RESULT_SCENE_NAME);
+        }
     }
 }
