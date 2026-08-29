@@ -9,6 +9,7 @@ using TPSRoguelite.InGame.Enum;
 using TMPro;
 using UnityEngine.UI;
 using DG.Tweening;
+using TPSRoguelite.InGame.Manager;
 
 namespace TPSRoguelite.InGame.Player
 {
@@ -129,6 +130,15 @@ namespace TPSRoguelite.InGame.Player
         private CancellationTokenSource fireCts;
 
         /// <summary>
+        /// ---　スキルによるバフ ---
+        /// </summary>
+        private float moveSpeedBuff = 0f;
+        private float attackPowerBuff = 0f;
+        private float fireRateBuff = 0f;
+        private float reloadSpeedBuff = 0f;
+        private int maxAmmoBuff = 0;
+
+        /// <summary>
         /// 外部(アニメーションとかUI)に現在の速度を教えるために保存するVelocity
         /// </summary>
         public Vector3 CurrentVelocity { get; private set; }
@@ -143,6 +153,22 @@ namespace TPSRoguelite.InGame.Player
         public int CurrentLevel {  get; private set; }
 
         private int RequiredExp => CurrentLevel * 5;
+
+        private int FinalAttackPwer => currentWeapon != null
+            ? Mathf.RoundToInt(currentWeapon.AttackPower * (1f + attackPowerBuff))
+            : 0;
+
+        private int FinalMaxAmmo => currentWeapon != null
+            ? currentWeapon.MaxAmmo + maxAmmoBuff
+            : 0;
+
+        private float FinalReloadTime => currentWeapon != null
+            ? currentWeapon.ReloadTime * Mathf.Max(0.1f,1f - reloadSpeedBuff)
+            : 0;
+
+        private float FinalFireRate => currentWeapon != null
+            ? currentWeapon.FireRate * Mathf.Max(0.1f, 1f - fireRateBuff)
+            : 0;
 
         private void Awake()
         {
@@ -163,6 +189,12 @@ namespace TPSRoguelite.InGame.Player
             {
                 Debug.Log("tWeaponDataがありません");
             }
+
+            moveSpeedBuff = 0f;
+            attackPowerBuff = 0f;
+            fireRateBuff = 0f;
+            reloadSpeedBuff = 0f;
+            maxAmmoBuff = 0;
             
             inputActions = new PlayerInputAction();
             inputActions.Player.Fire.performed += OnFire;//押し続けると呼ばれる
@@ -252,7 +284,8 @@ namespace TPSRoguelite.InGame.Player
 
             Vector3 moveDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
 
-            Vector3 targetVelocity = moveDirection * MOVE_SPEED;
+            float finalMoveSpeed = MOVE_SPEED * (1f + moveSpeedBuff);
+            Vector3 targetVelocity = moveDirection * finalMoveSpeed;
 
             Rigidbody.linearVelocity = 
                 new Vector3(targetVelocity.x, Rigidbody.linearVelocity.y, targetVelocity.z);
@@ -322,7 +355,7 @@ namespace TPSRoguelite.InGame.Player
 
             Debug.Log($"セミオートで撃った！弾数:{CurrentAmmo}");
             Shoot();
-            await UniTask.Delay(System.TimeSpan.FromSeconds(currentWeapon.FireRate), cancellationToken: token);
+            await UniTask.Delay(System.TimeSpan.FromSeconds(FinalFireRate), cancellationToken: token);
 
             canShoot=true;
         }
@@ -348,7 +381,7 @@ namespace TPSRoguelite.InGame.Player
                 await UniTask.Delay(TimeSpan.FromSeconds(currentWeapon.FireInteval), cancellationToken:token);
             }
 
-            await UniTask.Delay(TimeSpan.FromSeconds(currentWeapon.FireInteval), cancellationToken: token);
+            await UniTask.Delay(TimeSpan.FromSeconds(FinalFireRate), cancellationToken: token);
             canShoot = true;
         }
 
@@ -379,7 +412,7 @@ namespace TPSRoguelite.InGame.Player
                 }
             }
 
-            await UniTask.Delay(TimeSpan.FromSeconds(currentWeapon.FireInteval), cancellationToken:this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(FinalFireRate), cancellationToken:this.GetCancellationTokenOnDestroy());
             canShoot = true;
         }
 
@@ -407,14 +440,14 @@ namespace TPSRoguelite.InGame.Player
                 //ダメージを受ける性質の持ったオブジェクトであればダメージを与える
                 if (traget != null)
                 {
-                    traget.TakeDamage(currentWeapon.AttackPower);
+                    traget.TakeDamage(FinalAttackPwer);//
                 }
             }
         }
 
         private void OnReload(InputAction.CallbackContext context)
         {
-            if(isReloading || CurrentAmmo == currentWeapon.MaxAmmo)
+            if(isReloading || CurrentAmmo == FinalMaxAmmo)
             {
                 return;
             }
@@ -436,9 +469,11 @@ namespace TPSRoguelite.InGame.Player
                 reloadCircleImage.fillAmount = 0;
             }
 
-            Debug.Log("リロード中");
+            float finalReloadTime = currentWeapon != null
+               ? currentWeapon.ReloadTime * Mathf.Max(0.1f,1f - reloadSpeedBuff)
+               : 0;
 
-            DOVirtual.Float(0f, 1f, currentWeapon.ReloadTime, UpdateReloadUI).SetEase(Ease.Linear).OnComplete(FnishReload);
+            DOVirtual.Float(0f, 1f, finalReloadTime, UpdateReloadUI).SetEase(Ease.Linear).OnComplete(FnishReload);
         }
 
         /// <summary>
@@ -493,7 +528,7 @@ namespace TPSRoguelite.InGame.Player
         {
             if(ammoText != null)
             {
-                ammoText.SetText($"{CurrentAmmo} / {currentWeapon.MaxAmmo}");
+                ammoText.SetText($"{CurrentAmmo} / {FinalMaxAmmo}");
             }
         }
 
@@ -512,7 +547,7 @@ namespace TPSRoguelite.InGame.Player
                 reloadUI.SetActive(false);
             }
 
-            CurrentAmmo = currentWeapon.MaxAmmo;
+            CurrentAmmo = FinalMaxAmmo;
             UpdateCurrentAmmoUI();
             isReloading = false;
         }
@@ -539,9 +574,8 @@ namespace TPSRoguelite.InGame.Player
 
         private void LevelUp()
         {
-            CurrentLevel++;
-
             CurrentExp -= RequiredExp;
+            CurrentLevel++;
 
             if(levelUpEffect != null)
             {
@@ -565,6 +599,34 @@ namespace TPSRoguelite.InGame.Player
                 cancellationToken: this.GetCancellationTokenOnDestroy());
 
             levelUpText.enabled = false;
+            LevelUpManager.Instance.OnLevelUp(inputActions, this);
+        }
+
+        public void ApplySkill(SkillDataRecord skill)
+        {
+            switch ((SkillType)skill.SkillType)
+            {
+                case SkillType.MoveSpeedUp:
+                    moveSpeedBuff += skill.Value;
+                    break;
+
+                case SkillType.AttackPowerUp:
+                    attackPowerBuff += skill.Value;
+                    break;
+                
+                case SkillType.FireRateUp:
+                    fireRateBuff += skill.Value;
+                    break;
+
+                case SkillType.ReloadSpeedUp:
+                    reloadSpeedBuff += skill.Value;
+                    break;
+
+                case SkillType.MaxAmmoUp:
+                    maxAmmoBuff += (int)skill.Value;
+                    UpdateCurrentAmmoUI();
+                    break;
+            }
         }
     }
 }

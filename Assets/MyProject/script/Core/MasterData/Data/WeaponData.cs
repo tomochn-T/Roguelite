@@ -22,7 +22,7 @@ namespace Core.MasterData
         /// <summary>
         /// 攻撃力
         /// </summary>
-        [field: SerializeField] public double AttackPower { get; private set; }//int
+        [field: SerializeField] public int AttackPower { get; private set; }//int
 
         /// <summary>
         /// 射撃のインターバル時間(バーストやフルオートの連射間隔)
@@ -37,7 +37,7 @@ namespace Core.MasterData
         /// <summary>
         /// 最大弾数
         /// </summary>
-        [field: SerializeField] public double MaxAmmo { get; private set; }//int
+        [field: SerializeField] public int MaxAmmo { get; private set; }//int
 
         /// <summary>
         /// リロード時間

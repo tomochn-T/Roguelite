@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - EnemyData
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0c4c800643c550849a0886b9036c0f84
+    m_Address: SkillData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - SkillData
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e9aafa8b0df778340a4ee5bf0f0a9c64
     m_Address: WeaponData
     m_ReadOnly: 0
