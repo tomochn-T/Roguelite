@@ -6931,7 +6931,7 @@ MonoBehaviour:
   player: {fileID: 303803092993090425}
   enemySpawner: {fileID: 1040495269}
   timerText: {fileID: 1096846366}
-  gameClearTime: 180
+  gameClearTime: 10
 --- !u!4 &2088180912
 Transform:
   m_ObjectHideFlags: 0
