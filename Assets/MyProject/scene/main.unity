@@ -6931,7 +6931,7 @@ MonoBehaviour:
   player: {fileID: 303803092993090425}
   enemySpawner: {fileID: 1040495269}
   timerText: {fileID: 1096846366}
-  gameClearTime: 10
+  gameClearTime: 180
 --- !u!4 &2088180912
 Transform:
   m_ObjectHideFlags: 0
@@ -7305,7 +7305,7 @@ PrefabInstance:
       objectReference: {fileID: 903731131}
     - target: {fileID: 8566553793243937740, guid: fde6414825fed25499ba90cf1ae66a32, type: 3}
       propertyPath: weaponId
-      value: 5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8566553793243937740, guid: fde6414825fed25499ba90cf1ae66a32, type: 3}
       propertyPath: Rigidbody
