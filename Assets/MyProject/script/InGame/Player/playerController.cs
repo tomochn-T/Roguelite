@@ -10,6 +10,7 @@ using TMPro;
 using UnityEngine.UI;
 using DG.Tweening;
 using TPSRoguelite.InGame.Manager;
+using Core.Manager;
 
 namespace TPSRoguelite.InGame.Player
 {
@@ -89,7 +90,10 @@ namespace TPSRoguelite.InGame.Player
         [SerializeField] private TextMeshProUGUI levelUpText;
         [SerializeField] private ParticleSystem levelUpEffect;
         [SerializeField] private Slider hpBer;
-        
+
+        [Header("サウンド")]
+        [SerializeField] private AudioClip shootSE;
+
         /// <summary>
         /// 武器のデーター
         /// </summary>
@@ -138,6 +142,7 @@ namespace TPSRoguelite.InGame.Player
         private float fireRateBuff = 0f;
         private float reloadSpeedBuff = 0f;
         private int maxAmmoBuff = 0;
+
 
         /// <summary>
         /// 外部(アニメーションとかUI)に現在の速度を教えるために保存するVelocity
@@ -199,7 +204,7 @@ namespace TPSRoguelite.InGame.Player
             fireRateBuff = 0f;
             reloadSpeedBuff = 0f;
             maxAmmoBuff = 0;
-            
+
             inputActions = new PlayerInputAction();
             inputActions.Player.Fire.performed += OnFire;//押し続けると呼ばれる
             inputActions.Player.Fire.canceled += OnFire;
@@ -433,6 +438,10 @@ namespace TPSRoguelite.InGame.Player
                 muzzleFlah.Play();
             }
 
+            if (shootSE != null && SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySe(shootSE);
+            }
 
             Ray ray = new Ray(mainCameraTransform.position, mainCameraTransform.forward);
 

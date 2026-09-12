@@ -7,5 +7,6 @@ namespace TPSRoguelite.InGame.Enum
         FireRateUp = 2,
         ReloadSpeedUp = 3,
         MaxAmmoUp = 4,
+        WeaponChange = 5,
     }
 }

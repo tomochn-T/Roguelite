@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using UnityEngine;
 
 namespace Core.Manager
@@ -35,6 +36,16 @@ namespace Core.Manager
                 bgmSource.clip = clip;
                 bgmSource.volume = masterVolume * bgmVolume;
                 bgmSource.Play();
+            }
+        }
+
+        public void PlaySe(AudioClip clip)
+        {
+            if (clip != null)
+            {
+                seSorurce.clip = clip;
+                seSorurce.volume = masterVolume * bgmVolume;
+                seSorurce.Play();
             }
         }
 
